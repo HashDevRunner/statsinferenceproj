@@ -1,0 +1,62 @@
+---
+title: "---"
+author: "`#dev`"
+output: html_document
+---
+
+###Executive Summary
+One of the most important part of learning Statistical Inference subject is to understand the intricacies of distribution functions. It is interesting to verify the effects on expectancy as study begins to gather more data. Using the tools available, the exponential distribution can be simulated in R using function `rexp(n, lambda)`, where $lambda(\lambda)$ is the rate of the parameter and `n` $n$ is number of samples.
+
+For exponential distribution PDF, the mean and standard deviation can be derived as:
+$$
+\begin{aligned}
+\mu = \frac{1}{\lambda}
+\newline
+\sigma = \frac{1}{\lambda}
+\end{aligned}
+$$
+
+To begin with the simulation, we need to create a 1000 simulations for 40 random values. It could be achieved with the code:
+```{r}
+library(ggplot2)
+library(gridExtra)
+set.seed(0)
+noSim <- 1e3
+lambda <- 0.2
+sim <- matrix(rexp(noSim*40, rate=lambda), noSim, 40)
+```
+
+From these simulated values, obtain means for each row and display the histogram to verify if the distribution will seem to be normal.
+```{r}
+rowMeans <- rowMeans(sim)
+```
+
+```{r}
+#Actual density of the row mean function
+actual_density <- density(rowMeans)
+
+#Theoretical density of the distribution is a normal dist
+xfit <- seq(min(rowMeans), max(rowMeans), length=length(actual_density$x)) #xfit
+yfit <- dnorm(xfit, mean=1/lambda, sd=(1/lambda/sqrt(40)))  #yfit
+
+#Put into a data frame
+fit <- data.frame(x_fit = xfit,
+                  y_fit = yfit,
+                  x_act = actual_density$x,
+                  y_act = actual_density$y)
+
+#Plot the graph
+ghist_row <- ggplot(data.frame(rowMeans),aes(x=rowMeans)) + 
+  geom_histogram(binwidth = .3,aes(y=..density..),alpha=0.4) + theme_classic() +  
+  geom_line(data=fit,aes(x=x_fit,y=yfit),color="blue") + 
+  geom_line(data=fit,aes(x=x_act,y=y_act),color="red") + 
+  ggtitle(label = "Row means histogram") +
+  geom_vline(xintercept = 5, color = "red", linetype = "dashed")
+
+ghist_var <- ggplot(fit,aes(fill="gray")) + theme_classic() +
+  geom_line(aes(y = y_fit, x = x_fit),color="blue") + 
+  geom_line(aes(y = y_act, x = x_act),color="red") +
+  ggtitle("Density plot estimated actual vs theoretical")
+
+grid.arrange(ghist_row, ghist_var, nrow = 1)
+```
