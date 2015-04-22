@@ -2,6 +2,8 @@
 title: "---"
 author: "`#dev`"
 output: html_document
+fontsize: 10pt
+geometry: margin=0.8in
 ---
 
 ###Executive Summary
@@ -23,40 +25,41 @@ library(gridExtra)
 set.seed(0)
 noSim <- 1e3
 lambda <- 0.2
+#create a simulation of exponential distribution in a 1000x40 matrix
 sim <- matrix(rexp(noSim*40, rate=lambda), noSim, 40)
 ```
 
 From these simulated values, obtain means for each row and display the histogram to verify if the distribution will seem to be normal.
-```{r}
-rowMeans <- rowMeans(sim)
+```{r,fig.width=4, fig.align='center'}
+#generate data set for means of the rows
+data_est <- data.frame(r = rowMeans(sim),
+                       z = as.factor("Actual"))
+
+#show to histogram
+ghist <- ggplot(data_est,aes(x=r)) +
+  geom_histogram(binwidth = .3, aes(y=..density..)) +
+  theme_classic() +
+  ggtitle(label = "Row means histogram") +
+  geom_vline(xintercept = 5, color = "red", linetype = "dashed")  
+print(ghist)
 ```
 
-```{r}
-#Actual density of the row mean function
-actual_density <- density(rowMeans)
+Compare the estimated density of the distribution vs theoretical normal distribution.
+```{r,fig.width=10}
+#data set for theoretical normal distribution
+data_th <- data.frame(
+  r = rnorm(noSim,mean=1/lambda,sd=1/lambda/sqrt(40)),
+  z = as.factor("Normal Distribution")
+  )
 
-#Theoretical density of the distribution is a normal dist
-xfit <- seq(min(rowMeans), max(rowMeans), length=length(actual_density$x)) #xfit
-yfit <- dnorm(xfit, mean=1/lambda, sd=(1/lambda/sqrt(40)))  #yfit
+#create one big data set
+data_src <- rbind(data_est,data_th)
 
-#Put into a data frame
-fit <- data.frame(x_fit = xfit,
-                  y_fit = yfit,
-                  x_act = actual_density$x,
-                  y_act = actual_density$y)
-
-#Plot the graph
-ghist_row <- ggplot(data.frame(rowMeans),aes(x=rowMeans)) + 
-  geom_histogram(binwidth = .3,aes(y=..density..),alpha=0.4) + theme_classic() +  
-  geom_line(data=fit,aes(x=x_fit,y=yfit),color="blue") + 
-  geom_line(data=fit,aes(x=x_act,y=y_act),color="red") + 
-  ggtitle(label = "Row means histogram") +
-  geom_vline(xintercept = 5, color = "red", linetype = "dashed")
-
-ghist_var <- ggplot(fit,aes(fill="gray")) + theme_classic() +
-  geom_line(aes(y = y_fit, x = x_fit),color="blue") + 
-  geom_line(aes(y = y_act, x = x_act),color="red") +
-  ggtitle("Density plot estimated actual vs theoretical")
-
-grid.arrange(ghist_row, ghist_var, nrow = 1)
+#Plot side by side
+gplot_density <- ggplot(data_src, aes(x=r,fill=z)) + 
+  geom_density(alpha=.3) +
+  theme_classic() +
+  ggtitle(label = "Density Actual vs Normal Distribution") +
+  geom_vline(xintercept = 5, color = "red", linetype = "dashed")  
+grid.arrange(ghist, gplot_density, nrow = 1)
 ```
