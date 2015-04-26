@@ -1,23 +1,22 @@
 ---
-title: "---"
-author: "`#dev`"
+title: "Simulation using the exponential distribution"
+author: "Hashdevrunner"
 output: html_document
 fontsize: 10pt
 geometry: margin=0.8in
 ---
 
-###Executive Summary
+#Executive Summary
 One of the most important part of learning Statistical Inference subject is to understand the intricacies of distribution functions. It is interesting to verify the effects on expectancy as study begins to gather more data. Using the tools available, the exponential distribution can be simulated in R using function `rexp(n, lambda)`, where $lambda(\lambda)$ is the rate of the parameter and `n` $n$ is number of samples.
 
 For exponential distribution PDF, the mean and standard deviation can be derived as:
 $$
 \begin{aligned}
-\mu = \frac{1}{\lambda}
-\newline
-\sigma = \frac{1}{\lambda}
+\mu = \frac{1}{\lambda} = \sigma
 \end{aligned}
 $$
 
+##Simulation of values
 To begin with the simulation, we need to create a 1000 simulations for 40 random values. It could be achieved with the code:
 ```{r}
 library(ggplot2)
@@ -34,18 +33,17 @@ From these simulated values, obtain means for each row and display the histogram
 #generate data set for means of the rows
 data_est <- data.frame(r = rowMeans(sim),
                        z = as.factor("Actual"))
+```
 
+Compare the estimated density of the distribution vs theoretical normal distribution.
+```{r,fig.width=10}
 #show to histogram
 ghist <- ggplot(data_est,aes(x=r)) +
   geom_histogram(binwidth = .3, aes(y=..density..)) +
   theme_classic() +
   ggtitle(label = "Row means histogram") +
   geom_vline(xintercept = 5, color = "red", linetype = "dashed")  
-print(ghist)
-```
 
-Compare the estimated density of the distribution vs theoretical normal distribution.
-```{r,fig.width=10}
 #data set for theoretical normal distribution
 data_th <- data.frame(
   r = rnorm(noSim,mean=1/lambda,sd=1/lambda/sqrt(40)),
@@ -63,3 +61,40 @@ gplot_density <- ggplot(data_src, aes(x=r,fill=z)) +
   geom_vline(xintercept = 5, color = "red", linetype = "dashed")  
 grid.arrange(ghist, gplot_density, nrow = 1)
 ```
+
+##CLT
+From the graph, we expect from the CLT, that theoretical vs actual probability distribution are very close.
+```{r eval=TRUE}
+library(pander)
+tab_df <- data.frame(Mean = c(mean(rowMeans(sim)),1/lambda),
+                     Variance = c(mean(apply(sim,1,var)),1/lambda^2))
+rownames(tab_df) <- c("Simulated","Theoretical")
+pander(tab_df, round=2)
+```
+
+#Evaluation of coverage of CI
+Finally, let's evaluate the coverage of the confidence interval for $1/\lambda = \bar{X} \pm 1.96 \frac{S}{\sqrt{n}}$
+
+```{r}
+set.seed(0)
+lambda_vals <- seq(4, 6, by=0.01)
+coverage <- sapply(lambda_vals, function(lamb) {
+    mu_hats <- rowMeans(matrix(rexp(40*noSim, rate=0.2),
+                               noSim, 40))
+    ll <- mu_hats - qnorm(0.975) * sqrt(1/lambda**2/40)
+    ul <- mu_hats + qnorm(0.975) * sqrt(1/lambda**2/40)
+    mean(ll < lamb & ul > lamb)
+})
+
+qplot(lambda_vals, coverage) + geom_hline(yintercept=0.95)
+```
+
+The 95% confidence intervals for the rate parameter ($\lambda$) to be estimated ($\hat{\lambda}$) are $\hat{\lambda}{low} = \hat{\lambda}(1 - \frac{1.96}{\sqrt{n}})$ and $\hat{\lambda}{upp} = \hat{\lambda}(1 + \frac{1.96}{\sqrt{n}})$. As can be seen from the plot above, for selection of $\hat{\lambda}$ around 5, the average of the sample mean falls within the confidence interval at least 95% of the time. 
+
+```{r}
+mean(lambda_vals)
+```
+Note that the true rate, $\lambda$ is 5.
+
+
+####Reproducible code: [link](https://github.com/HashDevRunner/statsinferenceproj)
