@@ -1,0 +1,53 @@
+---
+title: "---"
+author: "Hashdevrunner"
+output: html_document
+fontsize: 10
+---
+```{r echo=FALSE}
+library(dplyr); library(reshape2)
+```
+##Executive Summary
+The ```ToothGrowth``` dataset describes the effect of Ascorbic acid in the form of Vitamin C and Orange Juice on Tooth Growth in Guinea Pigs. Experiment showed that there is a significant increase in length on Guinea Pig's toothgrowth as dosage is increased.
+
+##Exploring data
+```{r}
+data(ToothGrowth)
+tg <- ToothGrowth
+levels(tg$supp) <- c("Orange Juice","Vitamin C")
+tg$dose <- as.factor(tg$dose)
+```
+
+Highlighting the basic features of the data, it has 3 sets of subjects for each dosage on the 2 supplements.
+```{r}
+summary(tg)
+table(tg$supp, tg$dose)
+```
+
+The boxplot indicates that there is an increasing trend when administering higher dosage of Orange Juice or Vitamin C.
+```{r}
+library(ggplot2)
+plot <- ggplot(tg, 
+               aes(x=factor(dose),y=len,fill=factor(dose)))
+plot <-plot + geom_boxplot(notch=F) + 
+      facet_grid(.~supp) +
+       scale_x_discrete("Dosage (mg)") + 
+       scale_y_continuous("Length") +  
+       ggtitle("Exploratory Data Analyses") + 
+       theme(legend.position = "none")
+
+print(plot)
+```
+
+##Statistical Inference and Analysis
+In a first step, it is natural to verify whether the dosage of the supplement affects the toothgrowth irregardless of the supplement. Since we have 3 dose sets, we will compare the effects of .5mg to 1.0mg dose, 1.0mg to 2.0 dose, and .5mg to 2.0 dose.
+
+```{r}
+
+t1 <- filter(tg, dose == "0.5")$len
+t2 <- filter(tg, dose == "1")$len
+t3 <- filter(tg, dose == "2")$len
+
+t1vt2 <- t.test(t1,t2, paired = FALSE, var.equal = FALSE, alternative="two.sided")
+```
+The test to compare .5 and 1.0mg dose rejects the null hypothesis. It leads us to accept the alternative hyposthesis that their means is not equal to 0 and infer that these two samples are different.

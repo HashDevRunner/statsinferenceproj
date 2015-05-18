@@ -2,7 +2,7 @@
 title: "Simulation using the exponential distribution"
 author: "Hashdevrunner"
 output: html_document
-fontsize: 10pt
+fontsize: 8pt
 geometry: margin=0.8in
 ---
 
