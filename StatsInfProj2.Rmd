@@ -1,8 +1,9 @@
 ---
-title: "---"
+title: "Toothgrowth Experiment"
 author: "Hashdevrunner"
 output: html_document
-fontsize: 10
+fontsize: 8pt
+geometry: margin=0.8in
 ---
 ```{r echo=FALSE}
 library(dplyr); library(reshape2)
@@ -40,14 +41,67 @@ print(plot)
 ```
 
 ##Statistical Inference and Analysis
+
+###Dosage tests
 In a first step, it is natural to verify whether the dosage of the supplement affects the toothgrowth irregardless of the supplement. Since we have 3 dose sets, we will compare the effects of .5mg to 1.0mg dose, 1.0mg to 2.0 dose, and .5mg to 2.0 dose.
 
 ```{r}
 
-t1 <- filter(tg, dose == "0.5")$len
-t2 <- filter(tg, dose == "1")$len
-t3 <- filter(tg, dose == "2")$len
+t1 <- filter(tg, dose == "0.5")$len #low dose group
+t2 <- filter(tg, dose == "1")$len   #medium dose group
+t3 <- filter(tg, dose == "2")$len   #large dose group
 
 t1vt2 <- t.test(t1,t2, paired = FALSE, var.equal = FALSE, alternative="two.sided")
+t1vt2 #t1 vs t2 group
 ```
-The test to compare .5 and 1.0mg dose rejects the null hypothesis. It leads us to accept the alternative hyposthesis that their means is not equal to 0 and infer that these two samples are different.
+The test to compare .5 and 1.0mg dose rejects the null hypothesis. The very small p-value leads us to accept the alternative hyposthesis that their means is not equal to 0 and infer that these two samples are different.
+
+```{r}
+t2vt3 <- t.test(t2,t3, paired = FALSE, var.equal = FALSE, alternative="two.sided")
+t2vt3 #t2 vs t3 group 
+```
+For this test to compare 1mg to 2mg dose still rejects that null hypothesis. The p-values is still very small which means that these 2 groups are different.
+
+```{r}
+t1vt3 <- t.test(t1,t3, paired = FALSE, var.equal = FALSE, alternative="two.sided")
+t1vt3 #t1 vs t3 group 
+```
+Just for verifying that these two groups are different as well.
+
+All of the test doesn't contain 0 in their confidence intervals which can ultimately infer that these groups are all different.  It indicates that administration of ascorbic acid will affect toothgrowth depending on tested dosage levels.
+
+
+###Supplement type effectivity tests
+On this part, we check the effects of toothgrowth for the two supplement types.
+
+```{r}
+t1OJ <- filter(tg, dose == "0.5",supp == "Orange Juice")$len #low dose group
+t1VC <- filter(tg, dose == "0.5",supp == "Vitamin C")$len    #medium dose group
+
+t1supp <- t.test(t1OJ,t1VC, paired = FALSE, var.equal = FALSE, alternative="two.sided")
+t1supp
+```
+The test result shows that Orange Juice yields longer toothgrowth over Vitamin C. At 95% of the time, we can expect an interval of 1.71 to 8.78 difference for the two types.
+
+```{r}
+t2OJ <- filter(tg, dose == "1",supp == "Orange Juice")$len #low dose group
+t2VC <- filter(tg, dose == "1",supp == "Vitamin C")$len    #medium dose group
+
+t2supp <- t.test(t2OJ,t2VC, paired = FALSE, var.equal = FALSE, alternative="two.sided")
+t2supp
+```
+The test results shows the Orange Juice yields longer toothgrowth over Vitamin C as well. At 95% of the time, we can expect an interval of 2.8 to 9.0 difference for the two types.
+
+```{r}
+t3OJ <- filter(tg, dose == "2",supp == "Orange Juice")$len #low dose group
+t3VC <- filter(tg, dose == "2",supp == "Vitamin C")$len    #medium dose group
+
+t3supp <- t.test(t3OJ,t3VC, paired = FALSE, var.equal = FALSE, alternative="two.sided")
+t3supp
+```
+At 2mg dose, the effects of the two supplements doesn't yield much of a difference. They have the same effect at this dosage level.
+
+##Conclusion
+The effects of Ascorbic acid on toothgrowth indicates considerable increase in length when administered in progressive dosage levels. However, comparing the supplement types seems to have different effects over the other at certain dosage level. At .5 and 1mg level, Orange Juice yields longer toothgrowth over Vitamin C. But at 2mg level, the effects seems to be similar.
+
+####Reproducible code: [link](https://github.com/HashDevRunner/statsinferenceproj)
