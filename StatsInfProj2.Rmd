@@ -43,7 +43,7 @@ print(plot)
 ##Statistical Inference and Analysis
 
 ###Dosage tests
-In a first step, it is natural to verify whether the dosage of the supplement affects the toothgrowth irregardless of the supplement. Since we have 3 dose sets, we will compare the effects of .5mg to 1.0mg dose, 1.0mg to 2.0 dose, and .5mg to 2.0 dose.
+At the first step, it is natural to verify whether the dosage of the supplement effects on toothgrowth. Since we have 3 dose sets, we will compare the effects of .5mg to 1.0mg dose, 1.0mg to 2.0 dose, and .5mg to 2.0 dose.
 
 ```{r}
 
@@ -60,7 +60,7 @@ The test to compare .5 and 1.0mg dose rejects the null hypothesis. The very smal
 t2vt3 <- t.test(t2,t3, paired = FALSE, var.equal = FALSE, alternative="two.sided")
 t2vt3 #t2 vs t3 group 
 ```
-For this test to compare 1mg to 2mg dose still rejects that null hypothesis. The p-values is still very small which means that these 2 groups are different.
+For this test, the comparison of 1mg to 2mg dose still rejects that null hypothesis. The p-values is still very small which means that these 2 groups are different.
 
 ```{r}
 t1vt3 <- t.test(t1,t3, paired = FALSE, var.equal = FALSE, alternative="two.sided")
@@ -102,6 +102,6 @@ t3supp
 At 2mg dose, the effects of the two supplements doesn't yield much of a difference. They have the same effect at this dosage level.
 
 ##Conclusion
-The effects of Ascorbic acid on toothgrowth indicates considerable increase in length when administered in progressive dosage levels. However, comparing the supplement types seems to have different effects over the other at certain dosage level. At .5 and 1mg level, Orange Juice yields longer toothgrowth over Vitamin C. But at 2mg level, the effects seems to be similar.
+The effects of Ascorbic acid on toothgrowth indicates considerable increase in length when administered at different dosage levels. However, comparing the supplement types seems to have different effects over the other at certain dosage level. At .5 and 1mg level, Orange Juice yields longer toothgrowth over Vitamin C. But at 2mg level, the effects seems to be similar. This could serve as a guide to the user when evaluating effects over cost in producing items. 
 
-####Reproducible code: [link](https://github.com/HashDevRunner/statsinferenceproj)
+####Reproducible code: [github](https://github.com/HashDevRunner/statsinferenceproj)

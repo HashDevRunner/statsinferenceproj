@@ -28,14 +28,14 @@ lambda <- 0.2
 sim <- matrix(rexp(noSim*40, rate=lambda), noSim, 40)
 ```
 
-From these simulated values, obtain means for each row and display the histogram to verify if the distribution will seem to be normal.
+From these simulated values, obtaining the means for each row and displaying the frequency seems to be a normal distribution.
 ```{r,fig.width=4, fig.align='center'}
 #generate data set for means of the rows
 data_est <- data.frame(r = rowMeans(sim),
                        z = as.factor("Actual"))
 ```
 
-Compare the estimated density of the distribution vs theoretical normal distribution.
+Comparing the estimated density of the distribution vs theoretical normal distribution.
 ```{r,fig.width=10}
 #show to histogram
 ghist <- ggplot(data_est,aes(x=r)) +
@@ -97,4 +97,4 @@ mean(lambda_vals)
 Note that the true rate, $\lambda$ is 5.
 
 
-####Reproducible code: [link](https://github.com/HashDevRunner/statsinferenceproj)
+####Reproducible code: [github](https://github.com/HashDevRunner/statsinferenceproj)
