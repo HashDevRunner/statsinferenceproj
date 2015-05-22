@@ -5,8 +5,8 @@ output: html_document
 fontsize: 8pt
 geometry: margin=0.8in
 ---
-```{r echo=FALSE}
-library(dplyr); library(reshape2)
+```{r echo=FALSE, tidy=TRUE}
+library(dplyr); library(reshape2);library(pander)
 ```
 ##Executive Summary
 The ```ToothGrowth``` dataset describes the effect of Ascorbic acid in the form of Vitamin C and Orange Juice on Tooth Growth in Guinea Pigs. Experiment showed that there is a significant increase in length on Guinea Pig's toothgrowth as dosage is increased.
@@ -97,9 +97,17 @@ t3OJ <- filter(tg, dose == "2",supp == "Orange Juice")$len #low dose group
 t3VC <- filter(tg, dose == "2",supp == "Vitamin C")$len    #medium dose group
 
 t3supp <- t.test(t3OJ,t3VC, paired = FALSE, var.equal = FALSE, alternative="two.sided")
-t3supp
+t3supp$conf.int
 ```
 At 2mg dose, the effects of the two supplements doesn't yield much of a difference. They have the same effect at this dosage level.
+
+```{r echo=FALSE}
+tab_df <- data.frame(Supplement = c(t1vt2$p.value,t2vt3$p.value,t1vt3$p.value),
+                     OJVC = c(t1supp$p.value,t2supp$p.value,t3supp$p.value))
+rownames(tab_df) <- c("0.5mg","1.0mg","2.0mg")
+colnames(tab_df) <- c("Dose Level","Supplement type")
+pander(tab_df, round=4)
+```
 
 ##Conclusion
 The effects of Ascorbic acid on toothgrowth indicates considerable increase in length when administered at different dosage levels. However, comparing the supplement types seems to have different effects over the other at certain dosage level. At .5 and 1mg level, Orange Juice yields longer toothgrowth over Vitamin C. But at 2mg level, the effects seems to be similar. This could serve as a guide to the user when evaluating effects over cost in producing items. 
