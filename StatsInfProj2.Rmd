@@ -1,11 +1,11 @@
 ---
 title: "Toothgrowth Experiment"
 author: "Hashdevrunner"
-output: html_document
+output: pdf_document
 fontsize: 8pt
 geometry: margin=0.8in
 ---
-```{r echo=FALSE, tidy=TRUE}
+```{r echo=FALSE, tidy=TRUE, message=FALSE, warning=FALSE}
 library(dplyr); library(reshape2);library(pander)
 ```
 ##Executive Summary
@@ -20,9 +20,9 @@ tg$dose <- as.factor(tg$dose)
 ```
 
 Highlighting the basic features of the data, it has 3 sets of subjects for each dosage on the 2 supplements.
-```{r}
-summary(tg)
-table(tg$supp, tg$dose)
+```{r echo=FALSE}
+pander(summary(tg))
+pander(table(tg$supp, tg$dose))
 ```
 
 The boxplot indicates that there is an increasing trend when administering higher dosage of Orange Juice or Vitamin C.
@@ -52,23 +52,17 @@ t2 <- filter(tg, dose == "1")$len   #medium dose group
 t3 <- filter(tg, dose == "2")$len   #large dose group
 
 t1vt2 <- t.test(t1,t2, paired = FALSE, var.equal = FALSE, alternative="two.sided")
-t1vt2 #t1 vs t2 group
-```
-The test to compare .5 and 1.0mg dose rejects the null hypothesis. The very small p-value leads us to accept the alternative hyposthesis that their means is not equal to 0 and infer that these two samples are different.
-
-```{r}
 t2vt3 <- t.test(t2,t3, paired = FALSE, var.equal = FALSE, alternative="two.sided")
-t2vt3 #t2 vs t3 group 
-```
-For this test, the comparison of 1mg to 2mg dose still rejects that null hypothesis. The p-values is still very small which means that these 2 groups are different.
-
-```{r}
 t1vt3 <- t.test(t1,t3, paired = FALSE, var.equal = FALSE, alternative="two.sided")
-t1vt3 #t1 vs t3 group 
 ```
-Just for verifying that these two groups are different as well.
+```{r echo=FALSE}
+tab_dose <- data.frame(low = c(t1vt2$conf.int[1],t2vt3$conf.int[1],t1vt3$conf.int[1]),
+                       high = c(t1vt2$conf.int[2],t2vt3$conf.int[2],t1vt3$conf.int[2]))
+rownames(tab_dose) <- c("0.5mg","1.0mg","2.0mg")
+pander(tab_dose)
+```
 
-All of the test doesn't contain 0 in their confidence intervals which can ultimately infer that these groups are all different.  It indicates that administration of ascorbic acid will affect toothgrowth depending on tested dosage levels.
+All of the test doesn't contain 0 in their confidence intervals which can ultimately reject the null hypothesis and infer that these groups are all different.  It indicates that administration of ascorbic acid will affect toothgrowth depending on tested dosage levels.
 
 
 ###Supplement type effectivity tests
@@ -77,35 +71,33 @@ On this part, we check the effects of toothgrowth for the two supplement types.
 ```{r}
 t1OJ <- filter(tg, dose == "0.5",supp == "Orange Juice")$len #low dose group
 t1VC <- filter(tg, dose == "0.5",supp == "Vitamin C")$len    #medium dose group
-
 t1supp <- t.test(t1OJ,t1VC, paired = FALSE, var.equal = FALSE, alternative="two.sided")
-t1supp
-```
-The test result shows that Orange Juice yields longer toothgrowth over Vitamin C. At 95% of the time, we can expect an interval of 1.71 to 8.78 difference for the two types.
 
-```{r}
 t2OJ <- filter(tg, dose == "1",supp == "Orange Juice")$len #low dose group
 t2VC <- filter(tg, dose == "1",supp == "Vitamin C")$len    #medium dose group
-
 t2supp <- t.test(t2OJ,t2VC, paired = FALSE, var.equal = FALSE, alternative="two.sided")
-t2supp
-```
-The test results shows the Orange Juice yields longer toothgrowth over Vitamin C as well. At 95% of the time, we can expect an interval of 2.8 to 9.0 difference for the two types.
 
-```{r}
 t3OJ <- filter(tg, dose == "2",supp == "Orange Juice")$len #low dose group
 t3VC <- filter(tg, dose == "2",supp == "Vitamin C")$len    #medium dose group
-
 t3supp <- t.test(t3OJ,t3VC, paired = FALSE, var.equal = FALSE, alternative="two.sided")
-t3supp$conf.int
 ```
-At 2mg dose, the effects of the two supplements doesn't yield much of a difference. They have the same effect at this dosage level.
 
+```{r echo=FALSE}
+tab_supp <- data.frame(low = c(t1supp$conf.int[1],t2supp$conf.int[1],t3supp$conf.int[1]),
+                       high = c(t1supp$conf.int[2],t2supp$conf.int[2],t3supp$conf.int[2]))
+rownames(tab_supp) <- c("0.5mg","1.0mg","2.0mg")
+pander(tab_supp)
+```
+
+Comparing the 2 types of supplements yields longer toothgrowth for Orange Juice. But at 2mg dose, the effects of the two supplements doesn't yield much of a difference. They have the same effect at this dosage level.
+
+The p-value summarized in a table.
 ```{r echo=FALSE}
 tab_df <- data.frame(Supplement = c(t1vt2$p.value,t2vt3$p.value,t1vt3$p.value),
                      OJVC = c(t1supp$p.value,t2supp$p.value,t3supp$p.value))
 rownames(tab_df) <- c("0.5mg","1.0mg","2.0mg")
-colnames(tab_df) <- c("Dose Level","Supplement type")
+colnames(tab_df) <- c("Dose Level","Supplement type + Dose Level")
+# emphasize.strong.cells(which(tab_df > 0.5,arr.ind = TRUE))
 pander(tab_df, round=4)
 ```
 
